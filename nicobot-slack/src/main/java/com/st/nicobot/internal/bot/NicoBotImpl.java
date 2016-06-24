@@ -68,6 +68,31 @@ public class NicoBotImpl implements NicoBot {
             session.addMessagePostedListener(entry.getValue());
             logger.info("{} loaded", entry.getValue().getClass().getSimpleName());
         }
+
+        try {
+            session.connect();
+        } catch (IOException e) {
+            logger.error("Unable to start the Slack session !", e);
+        }
+
+        new Thread() {
+            @Override
+            public void run() {
+                while(!session.isConnected()) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                for(SlackUser user : session.getUsers()) {
+                    logger.info("{} - {}",user.getId(), user.getUserName());
+                }
+
+            }
+        }.start();
+
+
     }
 
     /**
